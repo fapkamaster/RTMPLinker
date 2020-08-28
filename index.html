@@ -8,12 +8,16 @@
    font-size: 24px;
 }
 
-body
-{
+body{
 	margin: 0px;
     padding: 0px;
 	background-color: #301020;
-	height: 100%;
+	height: 100%+160px;
+	/* height: 100%; */
+}
+
+span{
+	font-size: 16px;
 }
 
 input[type=text] {
@@ -52,7 +56,8 @@ animate{
 <div class="wrapper">
 <label>Wklej link z transmisji (ten z paska adresu) poniżej, a otrzymasz możliwe linki RTMP do transmisji.</label><br>
 <textarea id="link0" name="link0" rows="1" cols="69" placeholder="Oryginalny link tutaj">
-</textarea>
+</textarea><br>
+<input type="checkbox" id="twocam"><span>Zaznacz, jeśli druga kamerka</span></input>
 <br>
 <label>A tutaj wygenerowane linki do sprawdzenia:</label><br>
 <textarea id="link1" class="link" rows="1" cols="69" placeholder="CDN1">
@@ -73,50 +78,52 @@ animate{
 <script>
 var alerted = false;
 //Paste script here...
-function formatInput(input, i){
-	var output = input.replace('01', '0'+i);
-	return output
-}
-function fillMe(input){
+function fillMe(input){ //Wypełnij pola tekstowe...
 	var count = document.querySelectorAll('.link').length;
 	for ( let i = 1; i <= count; i++ )
 	{
-		document.querySelector('#link'+i).value = formatInput(input, i);
+		document.querySelector('#link'+i).value = input.replace('01', '0'+i); //Sformatuj zastępując liczbę...
 	}
 }
 function processLink(link){
-	//https://showup24.tv/group/3472987-gr-843797127
 	var output = 'rtmp://cdn-t01.showup.tv:1935/webrtc/';
 	var linkT = link.split('/');
-	var LT = linkT.length;
-	var linkTemp = linkT[LT-1];
+	var LT = linkT.length; 
+	var linkTemp = linkT[LT-1]; //Ostatnia część po slashu...
+	if ( document.querySelector('#twocam').checked === true ) { linkTemp += "sec" } //Obsługa drugiej kamerki...
 	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
-	//rtmp://cdn-t05.showup.tv:1935/webrtc/3472987spgrsp843797127_aac
-	//else { console.log("Unknown state"); }
 	output += linkTemp+"_aac"; //Add suffix;
-	if ( link === "" ) { /* do nothing */ }
-	else if ( link.indexOf('showup') === -1 && link !== "" ) { if ( alerted === false ) { alert("Wklej poprawny link!"); alerted = true; } }
+	if ( link === "" ) { /* do nothing if empty */ }
+	else if ( link.indexOf('showup') === -1 && link !== "" ) {
+		if ( alerted === false ) { //Wyświetl komunikat tylko raz...
+			alert("Wklej poprawny link!");
+			alerted = true;
+		}
+	}
+	else if ( link.indexOf('webrtc') > -1 && link !== "" ) {
+		if ( alerted === false ) { //Wyświetl komunikat tylko raz...
+			alert("Chyba wklejono link RTMP!");
+			alerted = true;
+		}
+	}
 	else {
 		alerted = false; 
-		fillMe(output); // if ( link.indexOf('showup') > -1 ) { fillMe(output); } 
+		fillMe(output);
 	}
 }
 
 function copyMe(id){
 	if ( document.querySelector('#link'+id).value !== ""  )
 	{
-		document.querySelector('#clipboard').value = document.querySelector('#link'+id).value;
-		var copyText = document.querySelector("#clipboard");
+		var copyText = document.querySelector('#link'+id).value;
 		copyText.select();
 		copyText.setSelectionRange(0, 999999); /*For mobile devices*/
 		document.execCommand("copy");
 		document.querySelector('#copybutton'+id).textContent = "Skopiowano!"
-		document.querySelector('#copybutton'+id).className = "animate";
-		document.querySelector('.animate').style.backgroundColor = "#102525"
+		document.querySelector('#copybutton'+id).style.backgroundColor = "#102550";
 		setTimeout(() => {
-			document.querySelector('#copybutton'+id).textContent = "Kopiuj!";
-			document.querySelector('.animate').style.backgroundColor = "#4CAF50"
-			}, 2500);
+			document.querySelector('#copybutton'+id).style.backgroundColor = "#4CAF50";
+			}, 500);
 	}
 }
 setInterval(function() { processLink(document.querySelector('#link0').value) }, 100);
