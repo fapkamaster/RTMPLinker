@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<style>html *
+{
+   color: #fff;
+   font-family: Monaco;
+   font-size: 24px;
+}
+
+body
+{
+	margin: 0px;
+    padding: 0px;
+	background-color: #301020;
+	height: 100%;
+}
+
+input[type=text] {
+  background-color: #241f1f;
+}
+
+input[type=radio] {
+  margin : 12px;
+}
+
+textarea {
+  background-color: #241f1f;
+  font-family: Courier;
+}
+
+button {
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 5px 32px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 24px;
+}
+
+animate{
+  background-color: #102525; /* Green */
+}</style>
+<meta charset="utf-8">
+<title>Generating RTMP links from normal Showup Links</title>
+</head>
+<body>
+<noscript>Włącz JavaScript w przeglądarce, by strona działała poprawnie.</noscript>
+
+<div class="wrapper">
+<label>Wklej link z transmisji (ten z paska adresu) poniżej, a otrzymasz możliwe linki RTMP do transmisji.</label><br>
+<textarea id="link0" name="link0" rows="1" cols="69" placeholder="Oryginalny link tutaj">
+</textarea>
+<br>
+<label>A tutaj wygenerowane linki do sprawdzenia:</label><br>
+<textarea id="link1" class="link" rows="1" cols="69" placeholder="CDN1">
+</textarea><button id="copybutton1" onclick="copyMe(1);">Kopiuj</button>
+<textarea id="link2" class="link" rows="1" cols="69" placeholder="CDN2">
+</textarea><button id="copybutton2" onclick="copyMe(2);">Kopiuj</button>
+<textarea id="link3" class="link" rows="1" cols="69" placeholder="CDN3">
+</textarea><button id="copybutton3" onclick="copyMe(3);">Kopiuj</button>
+<textarea id="link4" class="link" rows="1" cols="69" placeholder="CDN4">
+</textarea><button id="copybutton4" onclick="copyMe(4);">Kopiuj</button>
+<textarea id="link5" class="link" rows="1" cols="69" placeholder="CDN5">
+</textarea><button id="copybutton5" onclick="copyMe(5);">Kopiuj</button>
+<textarea id="link6" class="link" rows="1" cols="69" placeholder="CDN6">
+</textarea><button id="copybutton6" onclick="copyMe(6);">Kopiuj</button>
+</div>
+</div>
+<textarea id="clipboard" style="position:fixed;left:-100%;"></textarea>
+<script>
+var alerted = false;
+//Paste script here...
+function formatInput(input, i){
+	var output = input.replace('01', '0'+i);
+	return output
+}
+function fillMe(input){
+	var count = document.querySelectorAll('.link').length;
+	for ( let i = 1; i <= count; i++ )
+	{
+		document.querySelector('#link'+i).value = formatInput(input, i);
+	}
+}
+function processLink(link){
+	//https://showup24.tv/group/3472987-gr-843797127
+	var output = 'rtmp://cdn-t01.showup.tv:1935/webrtc/';
+	var linkT = link.split('/');
+	var LT = linkT.length;
+	var linkTemp = linkT[LT-1];
+	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
+	//rtmp://cdn-t05.showup.tv:1935/webrtc/3472987spgrsp843797127_aac
+	//else { console.log("Unknown state"); }
+	output += linkTemp+"_aac"; //Add suffix;
+	if ( link === "" ) { /* do nothing */ }
+	else if ( link.indexOf('showup') === -1 && link !== "" ) { if ( alerted === false ) { alert("Wklej poprawny link!"); alerted = true; } }
+	else {
+		alerted = false; 
+		fillMe(output); // if ( link.indexOf('showup') > -1 ) { fillMe(output); } 
+	}
+}
+
+function copyMe(id){
+	if ( document.querySelector('#link'+id).value !== ""  )
+	{
+		document.querySelector('#clipboard').value = document.querySelector('#link'+id).value;
+		var copyText = document.querySelector("#clipboard");
+		copyText.select();
+		copyText.setSelectionRange(0, 999999); /*For mobile devices*/
+		document.execCommand("copy");
+		document.querySelector('#copybutton'+id).textContent = "Skopiowano!"
+		document.querySelector('#copybutton'+id).className = "animate";
+		document.querySelector('.animate').style.backgroundColor = "#102525"
+		setTimeout(() => {
+			document.querySelector('#copybutton'+id).textContent = "Kopiuj!";
+			document.querySelector('.animate').style.backgroundColor = "#4CAF50"
+			}, 2500);
+	}
+}
+setInterval(function() { processLink(document.querySelector('#link0').value) }, 100);
+</script>
+</body>
+</html>
