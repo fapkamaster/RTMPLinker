@@ -82,14 +82,16 @@ function fillMe(input){ //Wypełnij pola tekstowe...
 	var count = document.querySelectorAll('.link').length;
 	for ( let i = 1; i <= count; i++ )
 	{
-		document.querySelector('#link'+i).value = input.replace('01', '0'+i); //Sformatuj zastępując liczbę...
+		document.querySelector('#link'+i).value = input.replace('t01', 't0'+i); //Sformatuj zastępując liczbę...
 	}
 }
 function processLink(link){
-	var output = 'rtmp://cdn-t01.showup.tv:1935/webrtc/';
+	var output = 'rtmp://cdn-t01.showup.tv:1935/webrtc/'; //Stała część adresu (01 się zmienia, ale to później podmieniamy)
 	var linkT = link.split('/');
 	var LT = linkT.length; 
 	var linkTemp = linkT[LT-1]; //Ostatnia część po slashu...
+	var indexQ = linkTemp.indexOf('?'); //Wyjątek od ref linków z PP
+	if ( indexQ !== -1 ) { linkTemp = linkTemp.substring(0,indexQ); } //Wyjątek od ref linków z PP
 	if ( document.querySelector('#twocam').checked === true ) { linkTemp += "sec" } //Obsługa drugiej kamerki...
 	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
 	output += linkTemp+"_aac"; //Add suffix;
