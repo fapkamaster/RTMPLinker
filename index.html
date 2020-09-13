@@ -117,7 +117,8 @@ function processLink(link){
 function copyMe(id){
 	if ( document.querySelector('#link'+id).value !== ""  )
 	{
-		var copyText = document.querySelector('#link'+id).value;
+		//var copyText = document.querySelector('#link'+id).value;
+		var copyText = document.querySelector('#link'+id);
 		copyText.select();
 		copyText.setSelectionRange(0, 999999); /*For mobile devices*/
 		document.execCommand("copy");
