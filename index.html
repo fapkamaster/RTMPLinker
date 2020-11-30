@@ -94,7 +94,9 @@ function processLink(link){
 	if ( indexQ !== -1 ) { linkTemp = linkTemp.substring(0,indexQ); } //Wyjątek od ref linków z PP
 	if ( document.querySelector('#twocam').checked === true ) { linkTemp += "sec" } //Obsługa drugiej kamerki...
 	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
+	if ( link.indexOf('prv') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp') }
 	output += linkTemp+"_aac"; //Add suffix;
+
 	if ( link === "" ) { /* do nothing if empty */ }
 	else if ( link.indexOf('showup') === -1 && link !== "" ) {
 		if ( alerted === false ) { //Wyświetl komunikat tylko raz...
