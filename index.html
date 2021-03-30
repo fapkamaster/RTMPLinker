@@ -77,7 +77,7 @@ animate{
 </div>
 <textarea id="clipboard" style="position:fixed;left:-100%;"></textarea>
 <script>
-var alerted = false;
+var alerted = false, fredAsked = false;
 //Paste script here...
 function fillMe(input, index){ //Wypełnij pola tekstowe...
 	var count = document.querySelectorAll('.link').length;
@@ -114,11 +114,15 @@ function askFred(username){
 		  if (err !== null) {
 			alert('Napotkanao błąd: ' + err);
 		  } else {
-			//console.log("data")
-			//console.log(data)
+			console.log("data")
+			console.log(data)
 			var input = data[0].vlc;
 			var index = Number(data[0].vlc.split('cdn-t')[1].substring(1,2));
+			console.log(input)
+			console.log(index)
 			fillMe(data[0].vlc, index);
+			fredAsked = true;
+			document.querySelector('#link0').value = "";
 		  }
 	});
 }
@@ -134,7 +138,7 @@ function processLink(link){
 	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
 	else if ( link.indexOf('prv') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp') }
 	else {
-		if ( link !== "" ){
+		if ( link !== "" && fredAsked === false ){
 			var streamer = linkTemp.split('showup.tv/')[1]; //Rozwiązanie odporne na brak/obecność https we wklejanym linku
 			askFred(streamer);
 		}
