@@ -58,6 +58,7 @@ animate{
 <textarea id="link0" name="link0" rows="1" cols="69" placeholder="Oryginalny link tutaj">
 </textarea><br>
 <input type="checkbox" id="twocam"><span>Zaznacz, jeśli druga kamerka</span></input>
+<!-- <input type="checkbox" id="public"><span>Zaznacz, jeśli transmisja publiczna</span></input> -->
 <br>
 <label>A tutaj wygenerowane linki do sprawdzenia:</label><br>
 <textarea id="link1" class="link" rows="1" cols="69" placeholder="CDN1">
@@ -78,13 +79,50 @@ animate{
 <script>
 var alerted = false;
 //Paste script here...
-function fillMe(input){ //Wypełnij pola tekstowe...
+function fillMe(input, index){ //Wypełnij pola tekstowe...
 	var count = document.querySelectorAll('.link').length;
-	for ( let i = 1; i <= count; i++ )
-	{
-		document.querySelector('#link'+i).value = input.replace('t01', 't0'+i); //Sformatuj zastępując liczbę...
+	if ( index !== null ) {
+		document.querySelector('#link'+index).value = input;
+	}
+	else {
+		for ( let i = 1; i <= count; i++ )
+		{
+			document.querySelector('#link'+i).value = input.replace('t01', 't0'+i); //Sformatuj zastępując liczbę...
+		}
 	}
 }
+function askFred(username){
+	var p1 =  "aHR0cDovL3N1cnRtcC53ZXN0ZXVyb3BlLmNsb3VkYXBwLmF6dXJlLmNvbTo4MDgwL2dldFJUTVA/dXNlcm5hbWU9";
+	var p2 = "JmFwaUtleT02aWF6dU5KV1VTRUtwNElHS1laU1kyOjJkck8wc2s3WWZtUzYwOVFnVG85WXg=";
+	var apiURL = atob(p1)+username+atob(p2);
+	var getJSON = function(url, callback) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('GET', url, true);
+		xhr.responseType = 'json';
+		xhr.onload = function() {
+		  var status = xhr.status;
+		  if (status === 200) {
+			callback(null, xhr.response);
+		  } else {
+			callback(status, xhr.response);
+		  }
+		};
+		xhr.send();
+	};
+	getJSON(apiURL,
+		function(err, data) {
+		  if (err !== null) {
+			alert('Napotkanao błąd: ' + err);
+		  } else {
+			//console.log("data")
+			//console.log(data)
+			var input = data[0].vlc;
+			var index = Number(data[0].vlc.split('cdn-t')[1].substring(1,2));
+			fillMe(data[0].vlc, index);
+		  }
+	});
+}
+
 function processLink(link){
 	var output = 'rtmp://cdn-t01.showup.tv:1935/webrtc/'; //Stała część adresu (01 się zmienia, ale to później podmieniamy)
 	var linkT = link.split('/');
@@ -94,7 +132,13 @@ function processLink(link){
 	if ( indexQ !== -1 ) { linkTemp = linkTemp.substring(0,indexQ); } //Wyjątek od ref linków z PP
 	if ( document.querySelector('#twocam').checked === true ) { linkTemp += "sec" } //Obsługa drugiej kamerki...
 	if ( link.indexOf('group') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp').replace('-', 'sp') }
-	if ( link.indexOf('prv') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp') }
+	else if ( link.indexOf('prv') > - 1 ) { linkTemp = linkTemp.replace('-', 'sp') }
+	else {
+		if ( link !== "" ){
+			var streamer = linkTemp.split('showup.tv/')[1]; //Rozwiązanie odporne na brak/obecność https we wklejanym linku
+			askFred(streamer);
+		}
+	}
 	output += linkTemp+"_aac"; //Add suffix;
 
 	if ( link === "" ) { /* do nothing if empty */ }
